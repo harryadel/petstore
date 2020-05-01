@@ -11,7 +11,7 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "host": "petstore.swagger.io",
+  "host": "localhost:3000",
   "basePath": "/v2",
   "tags": [
     {
@@ -32,7 +32,7 @@
       }
     }
   ],
-  "schemes": ["https", "http"],
+  "schemes": ["http"],
   "paths": {
     "/pet/{petId}/uploadImage": {
       "post": {
