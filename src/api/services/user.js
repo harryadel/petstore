@@ -1,4 +1,14 @@
-const ServerError = require('../../lib/error');
+const SimpleSchema = require("simpl-schema");
+const omit = require("lodash/omit");
+const isEmpty = require("lodash/isEmpty");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const shortid = require("shortid");
+const ServerError = require("../../lib/error");
+const db = require("../db");
+
+const salt = crypto.randomBytes(16).toString("hex");
+
 /**
  * @param {Object} options
  * @param {Array} options.body List of user object
@@ -25,7 +35,7 @@ module.exports.createUsersWithArrayInput = async (options) => {
 
   return {
     status: 200,
-    data: 'createUsersWithArrayInput ok!'
+    data: "createUsersWithArrayInput ok!",
   };
 };
 
@@ -55,13 +65,13 @@ module.exports.createUsersWithListInput = async (options) => {
 
   return {
     status: 200,
-    data: 'createUsersWithListInput ok!'
+    data: "createUsersWithListInput ok!",
   };
 };
 
 /**
  * @param {Object} options
- * @param {String} options.username The name that needs to be fetched. Use user1 for testing. 
+ * @param {String} options.username The name that needs to be fetched. Use user1 for testing.
  * @throws {Error}
  * @return {Promise}
  */
@@ -85,7 +95,7 @@ module.exports.getUserByName = async (options) => {
 
   return {
     status: 200,
-    data: 'getUserByName ok!'
+    data: "getUserByName ok!",
   };
 };
 
@@ -116,7 +126,7 @@ module.exports.updateUser = async (options) => {
 
   return {
     status: 200,
-    data: 'updateUser ok!'
+    data: "updateUser ok!",
   };
 };
 
@@ -146,7 +156,7 @@ module.exports.deleteUser = async (options) => {
 
   return {
     status: 200,
-    data: 'deleteUser ok!'
+    data: "deleteUser ok!",
   };
 };
 
@@ -174,10 +184,62 @@ module.exports.loginUser = async (options) => {
   //   status: 500, // Or another error code.
   //   error: 'Server Error' // Or another error message.
   // });
+  try {
+    new SimpleSchema({
+      username: String,
+      password: {
+        type: String,
+        min: 8,
+      },
+    }).validate(options);
+  } catch (error) {
+    throw new ServerError({
+      status: 422,
+      error: error.details.map((obj) => omit(obj, ["type", "regExp"])), // only return the error details
+    });
+  }
+
+  try {
+    const user = db.get("users").find({ username: options.username }).value();
+
+    const hash = crypto
+      .pbkdf2Sync(options.password, salt, 10000, 512, "sha512")
+      .toString("hex");
+    user.password === hash;
+
+    const today = new Date();
+    const expirationDate = new Date(today);
+    expirationDate.setDate(today.getDate() + 60);
+
+    return {
+      status: 200,
+      data: {
+        _id: user._id,
+        email: user.email,
+        token: jwt.sign(
+          {
+            email: user.email,
+            id: user._id,
+            exp: parseInt(expirationDate.getTime() / 1000, 10),
+          },
+          "secret"
+        ),
+      },
+    };
+  } catch (e) {
+    throw new ServerError({
+      status: 500,
+      error: [
+        {
+          message: "username or password is invalid",
+        },
+      ],
+    });
+  }
 
   return {
     status: 200,
-    data: 'loginUser ok!'
+    data: "loginUser ok!",
   };
 };
 
@@ -206,7 +268,7 @@ module.exports.logoutUser = async (options) => {
 
   return {
     status: 200,
-    data: 'logoutUser ok!'
+    data: "logoutUser ok!",
   };
 };
 
@@ -234,9 +296,70 @@ module.exports.createUser = async (options) => {
   //   error: 'Server Error' // Or another error message.
   // });
 
+  try {
+    new SimpleSchema({
+      username: String,
+      firstName: String,
+      email: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email,
+      },
+      password: {
+        type: String,
+        min: 8,
+      },
+      phone: Number,
+    }).validate(options.body);
+  } catch (error) {
+    throw new ServerError({
+      status: 422,
+      error: error.details.map((obj) => omit(obj, ["type", "regExp"])), // only return the error details
+    });
+  }
+
+  const duplicateEmail = db
+    .get("users")
+    .find({ email: options.body.email })
+    .value();
+
+  if (duplicateEmail && !isEmpty(duplicateEmail)) {
+    throw new ServerError({
+      status: 409,
+      error: [
+        {
+          message: "Email already exists",
+        },
+      ],
+    });
+  }
+
+  const duplicateUsername = db
+    .get("users")
+    .find({ username: options.body.username })
+    .value();
+
+  if (duplicateUsername && !isEmpty(duplicateUsername)) {
+    throw new ServerError({
+      status: 409,
+      error: [
+        {
+          message: "Username already exists",
+        },
+      ],
+    });
+  }
+
+  options.body.password = crypto
+    .pbkdf2Sync(options.body.password, salt, 10000, 512, "sha512")
+    .toString("hex");
+
+  const user = db
+    .get("users")
+    .push({ ...options.body, _id: shortid.generate() })
+    .write();
+
   return {
     status: 200,
-    data: 'createUser ok!'
+    data: { ...omit(user[0], ["password"]) },
   };
 };
-
