@@ -1,15 +1,30 @@
-const express = require('express');
-const pet = require('../services/pet');
-
+const express = require("express");
+const pet = require("../services/pet");
+const jwt = require("express-jwt");
 const router = new express.Router();
 
+const auth = {
+  required: jwt({
+    secret: "secret",
+    userProperty: "payload",
+    getToken: (req) => {
+      const {
+        headers: { authorization },
+      } = req;
 
+      if (authorization) {
+        return authorization;
+      }
+      return null;
+    },
+  }),
+};
 /**
  * uploads an image
  */
-router.post('/:petId/uploadImage', async (req, res, next) => {
+router.post("/:petId/uploadImage", async (req, res, next) => {
   const options = {
-    petId: req.params['petId'],
+    petId: req.params["petId"],
   };
 
   try {
@@ -18,7 +33,7 @@ router.post('/:petId/uploadImage', async (req, res, next) => {
   } catch (err) {
     return res.status(500).send({
       status: 500,
-      error: 'Server Error'
+      error: "Server Error",
     });
   }
 });
@@ -26,9 +41,9 @@ router.post('/:petId/uploadImage', async (req, res, next) => {
 /**
  * Add a new pet to the store
  */
-router.post('/', async (req, res, next) => {
+router.post("/", auth.required, async (req, res, next) => {
   const options = {
-    body: req.body['body']
+    body: req.body,
   };
 
   try {
@@ -42,9 +57,9 @@ router.post('/', async (req, res, next) => {
 /**
  * Update an existing pet
  */
-router.put('/', async (req, res, next) => {
+router.put("/", async (req, res, next) => {
   const options = {
-    body: req.body['body']
+    body: req.body["body"],
   };
 
   try {
@@ -56,12 +71,12 @@ router.put('/', async (req, res, next) => {
 });
 
 /**
- * Multiple status values can be provided with comma separated 
+ * Multiple status values can be provided with comma separated
  * strings
  */
-router.get('/findByStatus', async (req, res, next) => {
+router.get("/findByStatus", async (req, res, next) => {
   const options = {
-    status: req.query['status']
+    status: req.query["status"],
   };
 
   try {
@@ -73,12 +88,12 @@ router.get('/findByStatus', async (req, res, next) => {
 });
 
 /**
- * Multiple tags can be provided with comma separated strings. 
+ * Multiple tags can be provided with comma separated strings.
  * Use tag1, tag2, tag3 for testing.
  */
-router.get('/findByTags', async (req, res, next) => {
+router.get("/findByTags", async (req, res, next) => {
   const options = {
-    tags: req.query['tags']
+    tags: req.query["tags"],
   };
 
   try {
@@ -92,9 +107,9 @@ router.get('/findByTags', async (req, res, next) => {
 /**
  * Returns a single pet
  */
-router.get('/:petId', async (req, res, next) => {
+router.get("/:petId", async (req, res, next) => {
   const options = {
-    petId: req.params['petId']
+    petId: req.params["petId"],
   };
 
   try {
@@ -108,9 +123,9 @@ router.get('/:petId', async (req, res, next) => {
 /**
  * Updates a pet in the store with form data
  */
-router.post('/:petId', async (req, res, next) => {
+router.post("/:petId", async (req, res, next) => {
   const options = {
-    petId: req.params['petId'],
+    petId: req.params["petId"],
   };
 
   try {
@@ -124,10 +139,10 @@ router.post('/:petId', async (req, res, next) => {
 /**
  * Deletes a pet
  */
-router.delete('/:petId', async (req, res, next) => {
+router.delete("/:petId", async (req, res, next) => {
   const options = {
-    api_key: req.header['api_key'],
-    petId: req.params['petId']
+    api_key: req.header["api_key"],
+    petId: req.params["petId"],
   };
 
   try {

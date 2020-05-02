@@ -1,4 +1,9 @@
-const ServerError = require('../../lib/error');
+const SimpleSchema = require("simpl-schema");
+const shortid = require("shortid");
+const jwt = require("jsonwebtoken");
+const ServerError = require("../../lib/error");
+const db = require("../db");
+
 /**
  * @param {Object} options
  * @param {Integer} options.petId ID of pet to update
@@ -27,7 +32,7 @@ module.exports.uploadFile = async (options) => {
 
   return {
     status: 200,
-    data: 'uploadFile ok!'
+    data: "uploadFile ok!",
   };
 };
 
@@ -55,9 +60,40 @@ module.exports.addPet = async (options) => {
   //   error: 'Server Error' // Or another error message.
   // });
 
+  try {
+    new SimpleSchema({
+      category: Object,
+      "category.name": String,
+      name: String,
+      photoUrls: {
+        type: String,
+        optional: true,
+        regEx: SimpleSchema.RegEx.Url,
+      },
+      tags: Array,
+      "tags.$": Object,
+      "tags.$.name": String,
+      status: String,
+    }).validate(options.body);
+  } catch (error) {
+    console.log(error);
+    throw new ServerError({
+      status: 422,
+      error: error.details.map((obj) => omit(obj, ["type", "regExp"])), // only return the error details
+    });
+  }
+
+  options.body.category._id = shortid.generate();
+
+  options.body.tags = options.body.tags.map((obj) => {
+    return (obj._id = shortid.generate());
+  });
+
+  db.get("pets").push(options.body).write();
+
   return {
     status: 200,
-    data: 'addPet ok!'
+    data: options.body,
   };
 };
 
@@ -87,7 +123,7 @@ module.exports.updatePet = async (options) => {
 
   return {
     status: 200,
-    data: 'updatePet ok!'
+    data: "updatePet ok!",
   };
 };
 
@@ -117,7 +153,7 @@ module.exports.findPetsByStatus = async (options) => {
 
   return {
     status: 200,
-    data: 'findPetsByStatus ok!'
+    data: "findPetsByStatus ok!",
   };
 };
 
@@ -147,7 +183,7 @@ module.exports.findPetsByTags = async (options) => {
 
   return {
     status: 200,
-    data: 'findPetsByTags ok!'
+    data: "findPetsByTags ok!",
   };
 };
 
@@ -177,7 +213,7 @@ module.exports.getPetById = async (options) => {
 
   return {
     status: 200,
-    data: 'getPetById ok!'
+    data: "getPetById ok!",
   };
 };
 
@@ -209,13 +245,13 @@ module.exports.updatePetWithForm = async (options) => {
 
   return {
     status: 200,
-    data: 'updatePetWithForm ok!'
+    data: "updatePetWithForm ok!",
   };
 };
 
 /**
  * @param {Object} options
- * @param {String} options.api_key 
+ * @param {String} options.api_key
  * @param {Integer} options.petId Pet id to delete
  * @throws {Error}
  * @return {Promise}
@@ -240,7 +276,6 @@ module.exports.deletePet = async (options) => {
 
   return {
     status: 200,
-    data: 'deletePet ok!'
+    data: "deletePet ok!",
   };
 };
-
