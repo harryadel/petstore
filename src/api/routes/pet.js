@@ -1,24 +1,10 @@
 const express = require("express");
 const pet = require("../services/pet");
 const jwt = require("express-jwt");
+const auth = require("../auth");
+
 const router = new express.Router();
 
-const auth = {
-  required: jwt({
-    secret: "secret",
-    userProperty: "payload",
-    getToken: (req) => {
-      const {
-        headers: { authorization },
-      } = req;
-
-      if (authorization) {
-        return authorization;
-      }
-      return null;
-    },
-  }),
-};
 /**
  * uploads an image
  */
