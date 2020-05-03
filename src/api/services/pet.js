@@ -1,9 +1,10 @@
 const SimpleSchema = require("simpl-schema");
 const shortid = require("shortid");
+const isEmpty = require("lodash/isEmpty");
+const omit = require("lodash/omit");
 const ServerError = require("../../lib/error");
 const db = require("../db");
 const auth = require("../auth");
-
 
 /**
  * @param {Object} options
@@ -83,19 +84,151 @@ module.exports.addPet = async (options) => {
     });
   }
 
+  options.body._id = shortid.generate();
+
   options.body.category._id = shortid.generate();
 
   options.body.tags = options.body.tags.map((obj) => {
-    return (obj._id = shortid.generate());
+    return { ...obj, _id: shortid.generate() };
   });
 
-  options.body.ownerId = options.payload._id
+  options.body.ownerId = options.payload._id;
 
   db.get("pets").push(options.body).write();
 
   return {
     status: 200,
     data: options.body,
+  };
+};
+
+/**
+ * @param {Object} options
+ * @param {String} options.petId ID of pet that needs to be updated
+ * @throws {Error}
+ * @return {Promise}
+ */
+module.exports.getBids = async (options) => {
+  // Implement your business logic here...
+  //
+  // This function should return as follows:
+  //
+  // return {
+  //   status: 200, // Or another success code.
+  //   data: [] // Optional. You can put whatever you want here.
+  // };
+  //
+  // If an error happens during your business logic implementation,
+  // you should throw an error as follows:
+  //
+  // throw new ServerError({
+  //   status: 500, // Or another error code.
+  //   error: 'Server Error' // Or another error message.
+  // });
+
+  try {
+    new SimpleSchema({
+      petId: String,
+    }).validate({ petId: options.petId });
+  } catch (error) {
+    throw new ServerError({
+      status: 422,
+      error: error.details.map((obj) => omit(obj, ["type", "regExp"])), // only return the error details
+    });
+  }
+
+  const pet = db.get("pets").find({ _id: options.petId }).value();
+
+  if (isEmpty(pet)) {
+    throw new ServerError({
+      status: 404,
+      error: [
+        {
+          message: "No pet with such id",
+        },
+      ],
+    });
+  }
+
+  if (pet.ownerId !== options.payload._id) {
+    throw new ServerError({
+      status: 401,
+      error: [
+        {
+          message: "You're not authorized to perform such request",
+        },
+      ],
+    });
+  }
+
+  const bids = db
+    .get("bids")
+    .find({ petId: options.petId })
+    .value();
+
+  return {
+    status: 200,
+    data: bids,
+  };
+};
+
+/**
+ * @param {Object} options
+ * @param {String} options.petId ID of pet that needs to be updated
+ * @param {Integer} options.amount Amount of the bid
+ * @throws {Error}
+ * @return {Promise}
+ */
+module.exports.upsertBid = async (options) => {
+  // Implement your business logic here...
+  //
+  // This function should return as follows:
+  //
+  // return {
+  //   status: 200, // Or another success code.
+  //   data: [] // Optional. You can put whatever you want here.
+  // };
+  //
+  // If an error happens during your business logic implementation,
+  // you should throw an error as follows:
+  //
+  // throw new ServerError({
+  //   status: 500, // Or another error code.
+  //   error: 'Server Error' // Or another error message.
+  // });
+
+  try {
+    new SimpleSchema({
+      petId: String,
+      amount: Number,
+    }).validate(options.body);
+  } catch (error) {
+    throw new ServerError({
+      status: 422,
+      error: error.details.map((obj) => omit(obj, ["type", "regExp"])), // only return the error details
+    });
+  }
+
+  const pet = db.get("pets").find({ _id: options.body.petId }).value();
+
+  if (isEmpty(pet)) {
+    throw new ServerError({
+      status: 404,
+      error: [
+        {
+          message: "No pet with such id",
+        },
+      ],
+    });
+  }
+
+  const bid = { ...options.body, bidderId: options.payload._id };
+
+  db.get("bids").updateOrAdd(bid, ["bidderId"]).write();
+
+  return {
+    status: 200,
+    data: bid,
   };
 };
 

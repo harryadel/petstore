@@ -29,7 +29,7 @@ router.post("/:petId/uploadImage", async (req, res, next) => {
 router.post("/", auth.required, async (req, res, next) => {
   const options = {
     body: req.body,
-    payload: req.payload
+    payload: req.payload,
   };
 
   try {
@@ -107,15 +107,33 @@ router.get("/:petId", async (req, res, next) => {
 });
 
 /**
- * Updates a pet in the store with form data
+ * Upsert a bid on pet in the store with form data
  */
-router.post("/:petId", async (req, res, next) => {
+router.get("/:petId/bids", auth.required, async (req, res, next) => {
   const options = {
     petId: req.params["petId"],
+    payload: req.payload,
   };
 
   try {
-    const result = await pet.updatePetWithForm(options);
+    const result = await pet.getBids(options);
+    res.status(200).send(result.data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Upsert a bid on pet in the store with form data
+ */
+router.post("/upsertBid", auth.required, async (req, res, next) => {
+  const options = {
+    body: req.body,
+    payload: req.payload,
+  };
+
+  try {
+    const result = await pet.upsertBid(options);
     res.status(200).send(result.data);
   } catch (err) {
     next(err);
