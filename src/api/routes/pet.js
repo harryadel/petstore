@@ -1,6 +1,5 @@
 const express = require("express");
 const pet = require("../services/pet");
-const jwt = require("express-jwt");
 const auth = require("../auth");
 
 const router = new express.Router();
@@ -30,6 +29,7 @@ router.post("/:petId/uploadImage", async (req, res, next) => {
 router.post("/", auth.required, async (req, res, next) => {
   const options = {
     body: req.body,
+    payload: req.payload
   };
 
   try {
