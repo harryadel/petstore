@@ -1,8 +1,9 @@
 const SimpleSchema = require("simpl-schema");
 const shortid = require("shortid");
-const jwt = require("jsonwebtoken");
 const ServerError = require("../../lib/error");
 const db = require("../db");
+const auth = require("../auth");
+
 
 /**
  * @param {Object} options
@@ -76,7 +77,6 @@ module.exports.addPet = async (options) => {
       status: String,
     }).validate(options.body);
   } catch (error) {
-    console.log(error);
     throw new ServerError({
       status: 422,
       error: error.details.map((obj) => omit(obj, ["type", "regExp"])), // only return the error details
@@ -88,6 +88,8 @@ module.exports.addPet = async (options) => {
   options.body.tags = options.body.tags.map((obj) => {
     return (obj._id = shortid.generate());
   });
+
+  options.body.ownerId = options.payload._id
 
   db.get("pets").push(options.body).write();
 
