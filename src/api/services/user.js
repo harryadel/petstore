@@ -2,10 +2,10 @@ const SimpleSchema = require("simpl-schema");
 const omit = require("lodash/omit");
 const isEmpty = require("lodash/isEmpty");
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
 const shortid = require("shortid");
 const ServerError = require("../../lib/error");
 const db = require("../db");
+const auth = require("../auth");
 
 const salt = crypto.randomBytes(16).toString("hex");
 
@@ -200,30 +200,22 @@ module.exports.loginUser = async (options) => {
   }
 
   try {
-    const user = db.get("users").find({ username: options.username }).value();
+    const { password, _id, email } = db
+      .get("users")
+      .find({ username: options.username })
+      .value();
 
     const hash = crypto
       .pbkdf2Sync(options.password, salt, 10000, 512, "sha512")
       .toString("hex");
-    user.password === hash;
-
-    const today = new Date();
-    const expirationDate = new Date(today);
-    expirationDate.setDate(today.getDate() + 60);
+    password === hash;
 
     return {
       status: 200,
       data: {
-        _id: user._id,
-        email: user.email,
-        token: jwt.sign(
-          {
-            email: user.email,
-            id: user._id,
-            exp: parseInt(expirationDate.getTime() / 1000, 10),
-          },
-          "secret"
-        ),
+        _id,
+        email,
+        token: auth.generateToken({ email, _id }),
       },
     };
   } catch (e) {
