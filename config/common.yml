@@ -14,7 +14,7 @@ defaults: &defaults
       fatal:
 
 test:
-  <<: &defaults
+  <<: *defaults
 
 development:
   <<: *defaults
