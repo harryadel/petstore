@@ -300,7 +300,10 @@ module.exports.createUser = async (options) => {
         type: String,
         min: 8,
       },
-      phone: Number,
+      phone: {
+        type: Number,
+        min: 12
+      }
     }).validate(options.body);
   } catch (error) {
     throw new ServerError({
