@@ -124,6 +124,23 @@ router.get("/:petId/bids", auth.required, async (req, res, next) => {
 });
 
 /**
+ * Evalute bids
+ */
+router.get("/:petId/bidsResult", auth.required, async (req, res, next) => {
+  const options = {
+    petId: req.params["petId"],
+    payload: req.payload,
+  };
+
+  try {
+    const result = await pet.getBidsResult(options);
+    res.status(200).send(result.data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * Upsert a bid on pet in the store with form data
  */
 router.post("/upsertBid", auth.required, async (req, res, next) => {
