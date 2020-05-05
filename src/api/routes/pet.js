@@ -126,7 +126,7 @@ router.get("/:petId/bids", auth.required, async (req, res, next) => {
 /**
  * Evalute bids
  */
-router.get("/:petId/bidsResult", auth.required, async (req, res, next) => {
+router.get("/:petId/getBidsResult", auth.required, async (req, res, next) => {
   const options = {
     petId: req.params["petId"],
     payload: req.payload,
