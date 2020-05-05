@@ -1,0 +1,191 @@
+{
+	"info": {
+		"_postman_id": "89ba56ba-58dd-4007-8e44-5fb509167d33",
+		"name": "Petstore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Bids Result",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcnJ5YWRlbGJAZ21haWwuY29tIiwiX2lkIjoiM21RZ1JETVBCIiwiZXhwIjoxNTkzNjkzOTY0LCJpYXQiOjE1ODg1MDk5NjR9.sHrHxZLxiqzaoB_QjTZf2XWnkUa7sQU7Xf3FUUgxb0Y",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/v2/pet/RVyxmZsD2/getBidsResult",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v2",
+						"pet",
+						"RVyxmZsD2",
+						"getBidsResult"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Bids",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcnJ5YWRlbGJAZ21haWwuY29tIiwiX2lkIjoiM21RZ1JETVBCIiwiZXhwIjoxNTkzNjkzOTY0LCJpYXQiOjE1ODg1MDk5NjR9.sHrHxZLxiqzaoB_QjTZf2XWnkUa7sQU7Xf3FUUgxb0Y",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/v2/pet/RVyxmZsD2/bids",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v2",
+						"pet",
+						"RVyxmZsD2",
+						"bids"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/v2/user/login?username=harryadelb&password=12345678",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v2",
+						"user",
+						"login"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "harryadelb"
+						},
+						{
+							"key": "password",
+							"value": "12345678"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Insert Pet",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcnJ5YWRlbGJAZ21haWwuY29tIiwiX2lkIjoiM21RZ1JETVBCIiwiZXhwIjoxNTkzNjc5NTM1LCJpYXQiOjE1ODg0OTU1MzV9.bSNyyFShKqYVzo6Z-Bv3mKg4TjZw80T04NYQrNJlKow",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"category\": {\n        \"name\": \"Home Pets\"\n      },\n      \"name\": \"doggie\",\n      \"tags\": [\n        {\n        \t\"name\": \"logo\"\n        }\n      ],\n      \"status\": \"available\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/v2/pet",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v2",
+						"pet"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upsert Bid",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hcmluZWFkZWxiQGdtYWlsLmNvbSIsIl9pZCI6ImUzazJqbzMiLCJleHAiOjE1OTM2OTIxNjcsImlhdCI6MTU4ODUwODE2N30.rN4zSss5LjzoMZL-EdekKWfn3bwB9sUbrBBwEcQQ0h4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"petId\": \"RVyxmZsD2\",\n\t\"amount\": 550\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/v2/pet/upsertBid",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v2",
+						"pet",
+						"upsertBid"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"harryadelb\",\n      \"firstName\": \"Harry\",\n      \"lastName\": \"Adel\",\n      \"email\": \"harryadelb@gmail.com\",\n      \"password\": \"12345678\",\n      \"phone\": 123456789112\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/v2/user",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v2",
+						"user"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
