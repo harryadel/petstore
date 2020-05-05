@@ -292,6 +292,7 @@ module.exports.createUser = async (options) => {
     new SimpleSchema({
       username: String,
       firstName: String,
+      lastName: String,
       email: {
         type: String,
         regEx: SimpleSchema.RegEx.Email,

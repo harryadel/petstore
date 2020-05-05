@@ -175,13 +175,16 @@ module.exports.getBidsResult = async (options) => {
     .get("bids")
     .filter({ petId: options.petId })
     .map((bid) => {
+      const { firstName, lastName } = db
+        .get("users")
+        .find({ _id: bid.bidderId })
+        .value();
       return {
         ...bid,
-        firstName: db.get("users").find({ _id: bid.bidderId }).value()
-          .firstName,
+        fullName: `${firstName} ${lastName}`,
       };
     }) // Add firstName as it'd be used along the amount for sorting
-    .orderBy(["amount", "firstName"], ["desc"])
+    .orderBy(["amount", "fullName"], ["desc"])
     .take(4) // Grab the first four as we're about to replace the amount of a bid with the next one in the array
     .map((bid, index, arr) => {
       if (index <= 2) {
