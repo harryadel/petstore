@@ -28,7 +28,7 @@
     "lowdb": "^1.0.0",
     "node-yaml-config": "0.0.3",
     "shortid": "^2.2.15",
-    "simpl-schema": "^1.7.0",
+    "simpl-schema": "^1.10.2",
     "swagger-node-codegen": "^1.6.3"
   },
   "devDependencies": {
